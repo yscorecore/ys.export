@@ -1,45 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace YS.Export.Core
+using System.IO;
+using System.ComponentModel;
+using System.Globalization;
+
+namespace YS.Export
 {
-    public interface IExportService
+    public interface IExcelExportService
     {
-        ExportToken DoExport(ExportInfo exportInfo);
+        string CreateToken(ExportInfo exportInfo);
 
-        void Append(DataInfo data);
+        void AppendData(string token, Dictionary<string, object[][]> excelData);
 
-        Stream Complate(string token);
+        ExportResult Complate(string token);
+
 
     }
+
+    public interface IExcelWriter
+    {
+        void CreateSchemas(string file, Dictionary<string, ColumnInfo[]> schemas);
+        void AppendData(string file, Dictionary<string, object[][]> excelData);
+    }
+
+
+
+
+
+
     public class ExportResult
     {
+        string FileType { get; set; }
         string FileName { get; set; }
-        Stream OutputStream { get; set; }
+        Stream FileStream { get; set; }
     }
 
     public class ExportInfo
     {
-        public Dictionary<string, ColumnInfo> Columns { get; set; }
+        string FileType { get; set; }
         public string DataTitle { get; set; }
-
+        public Dictionary<string, ColumnInfo[]> Sheets { get; set; }
     }
 
-    public class DataInfo
-    {
-        public List<Dictionary<string, object>> Data { get; set; }
-
-        public string Token { get; set; }
-
-    }
-
-    public class ExportToken
-    {
-        public string Token { get; set; }
-        public DateTimeOffset Expired { get; set; }
-    }
-    public class CloumnInfo
+    public class ColumnInfo
     {
         public string DisplayName { get; set; }
         public int ColumnWidth { get; set; }
     }
+    public class ColumnInfoTypeConverter : StringConverter
+    {
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value is string columnName)
+            {
+                return new ColumnInfo
+                {
+                    DisplayName = columnName
+                };
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+    }
 }
+
+
+
