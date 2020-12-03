@@ -42,6 +42,7 @@ namespace YS.Export
         public Dictionary<string, ColumnInfo[]> Sheets { get; set; }
     }
 
+    [TypeConverter(typeof(ColumnInfoTypeConverter))]
     public class ColumnInfo
     {
         public string DisplayName { get; set; }
